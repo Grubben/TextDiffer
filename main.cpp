@@ -100,6 +100,9 @@ int main(int, char**)
 	std::ifstream	ifs;
 	ImVec4	col;
 
+	std::vector<int>	index_matches;
+	std::string			matchidxs;
+
 	buf.reserve(250);
 	filecont.reserve(10000);
 	// buf.clear();
@@ -177,10 +180,26 @@ int main(int, char**)
 		try {
 			e.assign(ebuf);
 			regedCont = std::regex_replace(filecont, e, rep);
+			index_matches.clear();
+			for (auto it = std::sregex_iterator(filecont.begin(), filecont.end(), e);
+				it != std::sregex_iterator();
+				++it)
+			{
+				index_matches.push_back(it->position());
+			}
 		} catch (std::regex_error& e) {
 			std::cerr << "Not a valid expression" << std::endl;
 		}
+	
+		matchidxs.clear();
+		for(int n: index_matches)
+		{
+			matchidxs += std::to_string(n) + ", ";
+		}
+		ImGui::TextWrapped("%s", matchidxs.c_str());
+
 		ImGui::TextUnformatted(regedCont.c_str());
+		ImGui::End();
 		
 		// static float col1[3] = { 1.0f, 0.0f, 0.2f };
 		// static float col2[4] = { 0.4f, 0.7f, 0.0f, 0.5f };
@@ -194,7 +213,6 @@ int main(int, char**)
 		// col.w = 255;
 
 		// ImGui::TextColored(col, "%s", "Hello there");
-		ImGui::End();
 
 		// ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 		// ImGui::TextWrapped("This is some useful text.");
